@@ -1,3 +1,29 @@
+# Lock Designs — Akash’s fork
+
+This is a maintained fork of [SmoothPixels/lock-designs](https://github.com/SmoothPixels/lock-designs), originally by Jean Alvarado. The original history, MIT license, designs, and asset credits are retained. Fork modifications are by Akash A.
+
+## Changes in this fork
+
+- Explicit `Commons.Color` references fix the Qt 6.12 colour namespace collision.
+- Locked displays remain on for five minutes before blanking, on battery and AC.
+- Optional ToF walk-away locking and Gaze infrared face authentication use a separate, cancellable PAM conversation. Presence alone never authorizes an unlock. Password entry remains independent and cancels a face attempt.
+- The plugin ID is `io.github.akashanil-dev.lock-designs`. Updates pull from this fork. The original and fork must not be enabled together because both provide the `lock` IPC service.
+
+The existing `~/.config/omarchy/lock-designs/` directory is reused, preserving the chosen design, twelve-hour clock setting, custom designs, and downloaded assets. Biometric templates, machine settings, diagnostic recordings, and credentials are not included in this repository.
+
+The optional presence components require a separately configured Gaze installation and sensor service. Installing this plugin does **not** install privileged services, enroll a face, modify PAM, or automatically enable presence. See [presence/README.md](presence/README.md) for the supported hardware and dependencies, and [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for attribution.
+
+For an existing upstream installation, disable the original before enabling this fork. Keep a backup of local changes and your design directory before removing it. On the configured host, the existing lock/picker shortcuts continue to use `omarchy-shell lock`.
+
+```sh
+omarchy plugin update io.github.akashanil-dev.lock-designs --yes
+node --test tests/policy.test.cjs
+```
+
+Upstream design documentation follows. Media URLs intentionally still point to the original pinned assets; forks do not automatically inherit GitHub release attachments.
+
+---
+
 # Lock Designs
 
 ![preview](preview.png)
@@ -13,7 +39,7 @@ Two of the qylock ports, **Genshin Impact** and **Terraria**, change their backg
 ## Install
 
 ```sh
-omarchy plugin add https://github.com/SmoothPixels/lock-designs.git --enable
+omarchy plugin add https://github.com/akashanil-dev/lock-designs.git --enable
 ```
 
 Only one lock screen plugin can be active at a time, so disable any other lock plugin first (`omarchy plugin list` shows what is enabled). Then open the picker:
@@ -25,7 +51,7 @@ omarchy-shell lock explore
 Bind that command to a key in your Hyprland bindings, or add a **Style > Lock Designs** row to the Omarchy menu with the bundled, opt-in script (run it again after an update if the snippet changes):
 
 ```sh
-~/.config/omarchy/plugins/io.github.smoothpixels.lock-designs/tools/install-menu-entries.sh
+~/.config/omarchy/plugins/io.github.akashanil-dev.lock-designs/tools/install-menu-entries.sh
 ```
 
 Nothing outside `~/.config/omarchy/lock-designs/` is written. No sudo.
@@ -98,7 +124,7 @@ Everything the picker does is also reachable from the command line through the s
 
 ```sh
 omarchy-shell lock explore                   # open or close the picker
-omarchy-shell shell toggle io.github.smoothpixels.lock-designs '{"screen":"DP-2"}'   # the picker on a named monitor
+omarchy-shell shell toggle io.github.akashanil-dev.lock-designs '{"screen":"DP-2"}'   # the picker on a named monitor
 omarchy-shell lock designs                   # JSON list with ids, names and readiness
 omarchy-shell lock design                    # id of the design in use
 omarchy-shell lock setDesign my-forest
@@ -120,13 +146,13 @@ Locking is as quick as the stock lock: a design compiles and instantiates in a f
 If you added the menu row, drop it with:
 
 ```sh
-~/.config/omarchy/plugins/io.github.smoothpixels.lock-designs/tools/install-menu-entries.sh --remove
+~/.config/omarchy/plugins/io.github.akashanil-dev.lock-designs/tools/install-menu-entries.sh --remove
 ```
 
 Then remove the plugin and hand the lock back to Omarchy:
 
 ```sh
-omarchy plugin remove io.github.smoothpixels.lock-designs
+omarchy plugin remove io.github.akashanil-dev.lock-designs
 omarchy plugin enable omarchy.lock
 ```
 
@@ -266,11 +292,11 @@ A design that fetches assets needs an entry in `designs/thirdparty-assets.json`;
 Validate before publishing:
 
 ```sh
-omarchy plugin validate ~/.config/omarchy/plugins/io.github.smoothpixels.lock-designs
+omarchy plugin validate ~/.config/omarchy/plugins/io.github.akashanil-dev.lock-designs
 /usr/lib/qt6/bin/qmllint -I /usr/share/omarchy/shell -I /usr/lib/qt6/qml Service.qml LockHost.qml Picker.qml designs/*.qml
 tools/verify-assets.sh
 ```
 
-If a lock screen change ever leaves you unable to unlock, switch to a TTY (Ctrl+Alt+F3), log in, and run `omarchy plugin disable io.github.smoothpixels.lock-designs && omarchy plugin enable omarchy.lock`, then `omarchy restart shell`.
+If a lock screen change ever leaves you unable to unlock, switch to a TTY (Ctrl+Alt+F3), log in, and run `omarchy plugin disable io.github.akashanil-dev.lock-designs && omarchy plugin enable omarchy.lock`, then `omarchy restart shell`.
 
 See [NOTICE.md](NOTICE.md) for the full licensing picture.

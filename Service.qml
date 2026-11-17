@@ -4,7 +4,9 @@ import Quickshell.Io
 import Quickshell.Services.Pam
 import Quickshell.Hyprland
 import Quickshell.Wayland
+import Quickshell.Services.UPower // lock-blank-delay patch
 import qs.Commons
+import qs.Commons as Commons
 import "Bridge.js" as Bridge
 
 // Lock Designs: the lock screen itself. A clone of Omarchy's omarchy.lock, so
@@ -17,11 +19,28 @@ import "Bridge.js" as Bridge
 Item {
   id: root
 
+  // Omarchy Presence integration (Akash A); external components keep this patch small.
+  FaceAuthenticator {
+    id: presenceFace
+    host: root
+    secure: sessionLock.secure
+    allowed: presenceController.faceEnabled
+  }
+  PresenceController {
+    id: presenceController
+    host: root
+    face: presenceFace
+  }
+  onEnteredPasswordChanged: if (enteredPassword.length > 0) {
+    presenceFace.cancel()
+    presenceFace.message = ""
+  }
+
   property var shell: null
   property var manifest: null
   property string omarchyPath: ""
 
-  readonly property string pluginId: manifest && manifest.id ? String(manifest.id) : "io.github.smoothpixels.lock-designs"
+  readonly property string pluginId: manifest && manifest.id ? String(manifest.id) : "io.github.akashanil-dev.lock-designs"
   readonly property string home: Quickshell.env("HOME")
   readonly property string userName: Quickshell.env("USER") || Quickshell.env("LOGNAME")
   readonly property string pluginDir: decodeURIComponent(Qt.resolvedUrl(".").toString().replace(/^file:\/\//, "").replace(/\/$/, ""))
@@ -138,6 +157,8 @@ Item {
   }
 
   function resetAuthenticationState() {
+    presenceFace.cancel()
+    presenceFace.message = ""
     enteredPassword = ""
     pendingPassword = ""
     failureMessage = ""
@@ -195,6 +216,8 @@ Item {
 
   function submitPassword(value) {
     var password = String(value || "")
+    if (password.length === 0) { presenceFace.start(); return }
+    presenceFace.cancel()
     if (!lockRequested || authenticatingPassword || password.length === 0) return
     runWake()
     pendingPassword = password
@@ -564,7 +587,7 @@ Item {
     }
 
     WlSessionLockSurface {
-      color: Color.background
+      color: Commons.Color.background
 
       LockHost {
         anchors.fill: parent
@@ -573,8 +596,11 @@ Item {
         backgroundPath: root.backgroundPath
         backgroundVersion: root.backgroundVersion
         fingerprintConfigured: root.fingerprintConfigured
+        faceConfigured: presenceFace.allowed && presenceFace.configured
+        onFaceRequested: presenceFace.start()
+        onPasswordRequested: { presenceFace.cancel(); presenceFace.message = "" }
         authenticatingPassword: root.authenticatingPassword
-        failureMessage: root.failureMessage
+        failureMessage: root.failureMessage || presenceFace.message
         failedAttempts: root.failedAttempts
         inputEnabled: root.lockRequested
         loadBackground: root.locked
@@ -584,7 +610,11 @@ Item {
         displayFont: root.displayFont
         onPasswordTextEdited: function(password) { root.enteredPassword = password }
         onSubmitPassword: function(password) { root.submitPassword(password) }
-        onClearFailureRequested: root.failureMessage = ""
+        onClearFailureRequested: {
+          root.failureMessage = ""
+          presenceFace.cancel()
+          presenceFace.message = ""
+        }
         onWakeRequested: root.runWake()
       }
     }
@@ -1008,7 +1038,7 @@ Item {
   // ---------------------------------------------------------------------
   Timer {
     id: idleBlankTimer
-    interval: 5000
+    interval: UPower.onBattery ? 300000 : 300000 // lock-blank-delay patch
     repeat: false
     property double armedAt: 0
     onTriggered: {
@@ -1088,6 +1118,16 @@ Item {
     }
 
     function isLocked(): string { return root.locked ? "true" : "false" }
+
+    function presenceStatus(): string {
+      return JSON.stringify({enabled: presenceController.active, sensor: presenceController.sensorState,
+        distanceMm: presenceController.distanceMm, confidence: presenceController.confidence,
+        awaySeconds: presenceController.awaySeconds, faceEnabled: presenceController.faceEnabled,
+        faceConfigured: presenceFace.configured, scanning: presenceFace.scanning,
+        lastDurationMs: presenceFace.lastDurationMs, lastAction: presenceController.lastAction})
+    }
+    function face(): string { return presenceFace.start() ? "started" : "unavailable" }
+    function cancelFace(): string { presenceFace.cancel(); return "ok" }
 
     function status(): string {
       return JSON.stringify({

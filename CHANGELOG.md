@@ -1,3 +1,9 @@
+# 2.1.1 — Akash fork
+
+- Preserve the installed Qt 6.12 colour fixes and five-minute display-blanking behaviour.
+- Add optional ToF presence and isolated Gaze face PAM integration, with policy tests and sensor service sources.
+- Use `io.github.akashanil-dev.lock-designs` and the Akash GitHub fork for updates; retain upstream credits and asset URLs.
+
 # Changelog
 
 ## 2.1.0 (2026-09-23)

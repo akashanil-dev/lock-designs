@@ -1,0 +1,45 @@
+#!/usr/bin/python3
+"""Settings and diagnostics for Omarchy Presence; never bypasses PAM."""
+import argparse
+import json
+import os
+from pathlib import Path
+import subprocess
+import tempfile
+
+CONFIG = Path.home() / '.config/omarchy/presence.json'
+
+def main():
+    parser = argparse.ArgumentParser(description='ToF walk-away locking and IR face authentication')
+    commands = parser.add_subparsers(dest='command', required=True)
+    commands.add_parser('status', help='Show settings and the live lock/sensor status')
+    settings = commands.add_parser('settings', help='Change settings; applies live')
+    settings.add_argument('--away-seconds', type=int, choices=range(5,301), metavar='5..300')
+    settings.add_argument('--presence', choices=['on','off'])
+    settings.add_argument('--face', choices=['on','off'])
+    commands.add_parser('watch', help='Show sensor events without using the camera')
+    args = parser.parse_args()
+    if args.command == 'watch':
+        os.execv('/usr/bin/python3', ['python3','/usr/local/lib/omarchy-presence/sensor.py','stream'])
+    data = json.loads(CONFIG.read_text())
+    if args.command == 'settings':
+        if args.presence == 'on' and data.get('calibrated') is not True:
+            raise SystemExit('Complete the physical walk-away/return test before enabling presence')
+        if args.face == 'on' and not Path('/etc/pam.d/omarchy-presence-face').exists():
+            raise SystemExit('The face-only PAM integration has not been installed')
+        if args.away_seconds is not None: data['away_seconds'] = args.away_seconds
+        if args.presence is not None: data['enabled'] = args.presence == 'on'
+        if args.face is not None: data['face_enabled'] = args.face == 'on'
+        with tempfile.NamedTemporaryFile('w', dir=CONFIG.parent, prefix='.presence-', delete=False) as file:
+            json.dump(data,file,indent=2);file.write('\n');file.flush();os.fsync(file.fileno())
+        os.replace(file.name, CONFIG)
+    print(json.dumps(data,indent=2))
+    if args.command == 'status':
+        result = subprocess.run(['omarchy-shell','lock','presenceStatus'],text=True,capture_output=True,timeout=5)
+        if result.returncode == 0:
+            try: print(json.dumps(json.loads(result.stdout),indent=2))
+            except ValueError: print(result.stdout.strip())
+        else: print('The lock-screen integration is not loaded.')
+
+if __name__ == '__main__':
+    main()

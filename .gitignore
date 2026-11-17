@@ -5,3 +5,6 @@
 # commit any of them; that is the entire point of the download-on-demand
 # design and it keeps a clone small.
 *-assets/
+
+__pycache__/
+*.pyc
