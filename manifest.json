@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "io.github.akashanil-dev.lock-designs",
   "name": "Lock Designs — Akash",
-  "version": "2.1.2",
+  "version": "2.1.3",
   "author": "Akash A; original by Jean Alvarado",
   "license": "MIT",
   "description": "Akash’s fork of Lock Designs: 66 designs, Qt 6.12 colour compatibility, five-minute display blanking, and optional ToF presence / Gaze infrared face authentication.",

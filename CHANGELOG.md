@@ -1,3 +1,9 @@
+# 2.1.3 — Restore original Dot Matrix motion
+
+- Remove scan pulsing and yellow; scanning keeps the theme accent.
+- Restore the original 140 ms LED colour transitions and retain the clock colon animation.
+- Keep green success and red failure feedback.
+
 # 2.1.2 — Dot Matrix face feedback
 
 - Pulse the LED clock yellow during face authentication, show green for 180 ms after successful PAM authentication, and red after rejection or a failed check.
