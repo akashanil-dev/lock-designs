@@ -26,6 +26,7 @@ Item {
   property int avatarVersion: 0
   property bool fingerprintConfigured: false
   property bool faceConfigured: false
+  property string faceAuthState: "idle"
   property bool fido2Configured: false
   property bool fido2Active: false
   property bool fido2Authenticating: false
@@ -67,7 +68,7 @@ Item {
   // out (an older base, a hand-rolled root item) still gets everything else.
   function bind(target) {
     var names = ["backgroundPath", "backgroundVersion", "avatarPath", "avatarVersion",
-      "fingerprintConfigured", "faceConfigured", "fido2Configured", "fido2Active",
+      "fingerprintConfigured", "faceConfigured", "faceAuthState", "fido2Configured", "fido2Active",
       "fido2Authenticating", "fido2NeedsPin", "fido2Status", "authenticatingPassword",
       "failureMessage", "failedAttempts", "inputEnabled", "loadBackground", "passwordText",
       "videoPath", "videoPlaying", "twelveHour", "displayFont"]

@@ -25,6 +25,7 @@ Item {
     host: root
     secure: sessionLock.secure
     allowed: presenceController.faceEnabled
+    successFeedbackMs: root.activeDesignId === "my-dotmatrix" ? 180 : 0
   }
   PresenceController {
     id: presenceController
@@ -597,10 +598,12 @@ Item {
         backgroundVersion: root.backgroundVersion
         fingerprintConfigured: root.fingerprintConfigured
         faceConfigured: presenceFace.allowed && presenceFace.configured
+        faceAuthState: presenceFace.feedbackState
         onFaceRequested: presenceFace.start()
         onPasswordRequested: { presenceFace.cancel(); presenceFace.message = "" }
         authenticatingPassword: root.authenticatingPassword
-        failureMessage: root.failureMessage || presenceFace.message
+        failureMessage: presenceFace.feedbackState === "checking" || presenceFace.feedbackState === "success"
+          ? "" : root.failureMessage || (presenceFace.feedbackState === "failure" ? presenceFace.message : "")
         failedAttempts: root.failedAttempts
         inputEnabled: root.lockRequested
         loadBackground: root.locked

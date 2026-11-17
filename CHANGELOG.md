@@ -1,3 +1,10 @@
+# 2.1.2 — Dot Matrix face feedback
+
+- Pulse the LED clock yellow during face authentication, show green for 180 ms after successful PAM authentication, and red after rejection or a failed check.
+- Separate face status from password errors; cancel pending confirmation when typing, disabling face auth, or losing the secure lock.
+- Honour disabled animations with steady yellow, and stop the pulse when the display is blanked.
+- Add nine QML tests using fake PAM only; cover deferred success, failure/retry, cancellation, late results, and password fallback.
+
 # 2.1.1 — Akash fork
 
 - Preserve the installed Qt 6.12 colour fixes and five-minute display-blanking behaviour.

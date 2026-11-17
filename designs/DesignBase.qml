@@ -21,6 +21,7 @@ Item {
   property int avatarVersion: 0
   property bool fingerprintConfigured: false
   property bool faceConfigured: false
+  property string faceAuthState: "idle"
   property bool fido2Configured: false
   property bool fido2Active: false
   property bool fido2Authenticating: false

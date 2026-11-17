@@ -3,8 +3,8 @@
 //
 // SmoothPixels original. A dark room, a bezelled LED panel, and the time
 // picked out in lit dots of the theme accent with the colon blinking the
-// seconds. A failed attempt turns the lit dots to the theme's error color
-// until you type again.
+// seconds. Face checks pulse yellow, then show green for a match or red for
+// failure. Password failures retain the theme's error colour.
 import QtQuick
 import QtQuick.Shapes
 import qs.Commons
@@ -18,12 +18,24 @@ DesignBase {
   // Lit dots sit a notch toward the foreground so they clear the accent's own
   // brightness; unlit ones are only a faint trace of the grid, fainter on dark
   // themes where the glow already separates the digits.
-  readonly property color lit: lock.errorState ? Commons.Color.lock.textError : lock.raise(Commons.Color.accent, 1.1)
+  property real scanBrightness: 1
+  readonly property color lit: faceAuthState === "checking" ? Qt.rgba(250 / 255, 204 / 255, 21 / 255, scanBrightness)
+    : faceAuthState === "success" ? "#4ade80"
+    : faceAuthState === "failure" ? "#f87171"
+    : lock.errorState ? Commons.Color.lock.textError : lock.raise(Commons.Color.accent, 1.1)
   readonly property color unlit: lock.withAlpha(Commons.Color.foreground, lock.lightTheme ? 0.09 : 0.05)
   readonly property color panel: lock.deepen(Commons.Color.background, 1.65)
   readonly property real pitch: lock.u * 2.8
   readonly property string digits: lock.clock("HH:mm").substring(0, 5)
   readonly property bool colonOn: lock.now.getSeconds() % 2 === 0
+
+  SequentialAnimation {
+    running: lock.faceAuthState === "checking" && lock.visible && lock.videoPlaying && Style.duration(1) > 0
+    loops: Animation.Infinite
+    onRunningChanged: if (!running) lock.scanBrightness = 1
+    NumberAnimation { target: lock; property: "scanBrightness"; from: 1; to: 0.35; duration: Style.duration(260); easing.type: Easing.OutCubic }
+    NumberAnimation { target: lock; property: "scanBrightness"; from: 0.35; to: 1; duration: Style.duration(260); easing.type: Easing.OutCubic }
+  }
 
   // Standard 5x7 digit shapes; the colon is three columns wide.
   readonly property var glyphs: ({
@@ -129,7 +141,6 @@ DesignBase {
               anchors.fill: parent
               radius: width / 2
               color: parent.on ? lock.lit : lock.unlit
-              Behavior on color { ColorAnimation { duration: 140 } }
             }
           }
         }
@@ -157,6 +168,8 @@ DesignBase {
     height: Math.round(lock.u * 4.4)
     color: lock.panel
     accentColor: Commons.Color.accent
+    placeholder: lock.faceAuthState === "checking" ? "Looking for you…"
+      : lock.faceAuthState === "success" ? "Recognized" : "Enter password"
     placeholderColor: lock.withAlpha(Commons.Color.foreground, 0.45)
   }
 }
