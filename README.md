@@ -2,6 +2,12 @@
 
 This is a maintained fork of [SmoothPixels/lock-designs](https://github.com/SmoothPixels/lock-designs), originally by Jean Alvarado. The original history, MIT license, designs, and asset credits are retained. Fork modifications are by Akash A.
 
+## Related: Omarchy Gaze Lock
+
+[Omarchy Gaze Lock](https://github.com/akashanil-dev/omarchy-gaze-lock) is our combined lock-screen and optional Gaze face-authentication integration. It brings these designs together with infrared face authentication, presence-triggered locking, and scan/result feedback in the Dot Matrix clock.
+
+Choose that repository for the integrated experience. It already includes the designs, so do **not** enable both as separate lock providers: they share the same plugin ID and lock service. Gaze itself is a separate dependency that must be installed and enrolled locally; follow the dependency and setup instructions in the Gaze Lock README. Password fallback remains available.
+
 ## Changes in this fork
 
 - Explicit `Commons.Color` references fix the Qt 6.12 colour namespace collision.
