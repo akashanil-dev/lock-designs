@@ -24,7 +24,7 @@ TestCase {
     }
     Component {
         id: faceComponent
-        Plugin.FaceAuthenticator { secure: true; allowed: true; successFeedbackMs: 180 }
+        Plugin.FaceAuthenticator { secure: true; allowed: true; successFeedbackMs: 300 }
     }
     function init() {
         host = createTemporaryObject(hostComponent, test)
@@ -47,7 +47,7 @@ TestCase {
         face.start()
         pam.finish(PamResult.Failure)
         compare(face.feedbackState, "failure")
-        wait(220)
+        wait(340)
         compare(host.unlocks, 0)
         verify(face.start())
         compare(face.feedbackState, "checking")
@@ -56,7 +56,7 @@ TestCase {
         face.start()
         face.cancel()
         pam.finish(PamResult.Success)
-        wait(220)
+        wait(340)
         compare(host.unlocks, 0)
         compare(face.feedbackState, "idle")
     }
@@ -64,7 +64,7 @@ TestCase {
         face.start()
         pam.finish(PamResult.Success)
         face.cancel()
-        wait(220)
+        wait(340)
         compare(host.unlocks, 0)
         compare(face.feedbackState, "idle")
     }
@@ -72,7 +72,7 @@ TestCase {
         face.start()
         pam.finish(PamResult.Success)
         host.enteredPassword = "x"
-        wait(220)
+        wait(340)
         compare(host.unlocks, 0)
         compare(face.feedbackState, "idle")
     }
@@ -80,14 +80,14 @@ TestCase {
         face.start()
         pam.finish(PamResult.Success)
         face.allowed = false
-        wait(220)
+        wait(340)
         compare(host.unlocks, 0)
     }
     function test_lost_lock_revokes_pending_success() {
         face.start()
         pam.finish(PamResult.Success)
         face.secure = false
-        wait(220)
+        wait(340)
         compare(host.unlocks, 0)
     }
     function test_error_is_red_but_cancelled_error_is_ignored() {

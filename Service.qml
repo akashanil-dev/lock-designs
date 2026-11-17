@@ -25,7 +25,7 @@ Item {
     host: root
     secure: sessionLock.secure
     allowed: presenceController.faceEnabled
-    successFeedbackMs: root.activeDesignId === "my-dotmatrix" ? 180 : 0
+    successFeedbackMs: root.activeDesignId === "my-dotmatrix" ? 300 : 0
   }
   PresenceController {
     id: presenceController

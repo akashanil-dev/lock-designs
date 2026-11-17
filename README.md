@@ -5,7 +5,7 @@ This is a maintained fork of [SmoothPixels/lock-designs](https://github.com/Smoo
 ## Changes in this fork
 
 - Explicit `Commons.Color` references fix the Qt 6.12 colour namespace collision.
-- Dot Matrix retains the system theme accent and original LED transitions while checking your face, briefly turns green on success, and turns red on a failed check. The green confirmation lasts 180 ms before unlocking.
+- Dot Matrix uses a single original-style whole-screen flash in the system theme accent when a face check starts, and retains the original LED transitions, briefly turns green on success, and turns red on a failed check. The green confirmation lasts 300 ms before unlocking.
 - Locked displays remain on for five minutes before blanking, on battery and AC.
 - Optional ToF walk-away locking and Gaze infrared face authentication use a separate, cancellable PAM conversation. Presence alone never authorizes an unlock. Password entry remains independent and cancels a face attempt.
 - The plugin ID is `io.github.akashanil-dev.lock-designs`. Updates pull from this fork. The original and fork must not be enabled together because both provide the `lock` IPC service.

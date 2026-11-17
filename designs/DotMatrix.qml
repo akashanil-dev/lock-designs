@@ -28,6 +28,32 @@ DesignBase {
   readonly property string digits: lock.clock("HH:mm").substring(0, 5)
   readonly property bool colonOn: lock.now.getSeconds() % 2 === 0
 
+  // The original scan message accidentally triggered DesignBase's whole-screen
+  // failure flash. Keep that one-shot motion explicitly, using the theme accent
+  // rather than reporting a scan as an authentication error.
+  Rectangle {
+    id: scanFlash
+    anchors.fill: parent
+    z: 999
+    color: Commons.Color.accent
+    opacity: 0
+    visible: opacity > 0
+  }
+  SequentialAnimation {
+    id: scanShutter
+    NumberAnimation { target: scanFlash; property: "opacity"; from: 0; to: 0.2; duration: Style.duration(70) }
+    NumberAnimation { target: scanFlash; property: "opacity"; from: 0.2; to: 0; duration: Style.duration(400); easing.type: Easing.OutCubic }
+  }
+  onFaceAuthStateChanged: {
+    scanShutter.stop()
+    scanFlash.opacity = 0
+    if (faceAuthState === "checking" && videoPlaying && Style.duration(1) > 0) scanShutter.restart()
+  }
+  onVideoPlayingChanged: if (!videoPlaying) {
+    scanShutter.stop()
+    scanFlash.opacity = 0
+  }
+
   // Standard 5x7 digit shapes; the colon is three columns wide.
   readonly property var glyphs: ({
     "0": ["01110", "10001", "10001", "10001", "10001", "10001", "01110"],
@@ -133,6 +159,15 @@ DesignBase {
               radius: width / 2
               color: parent.on ? lock.lit : lock.unlit
               Behavior on color { ColorAnimation { duration: Style.duration(140) } }
+            }
+            // Draw results without a colour animation. Toggling a Behavior's
+            // enabled binding at the same time as its target can still start
+            // one interpolated frame, washing out a short green confirmation.
+            Rectangle {
+              anchors.fill: parent
+              radius: width / 2
+              visible: parent.on && (lock.faceAuthState === "success" || lock.faceAuthState === "failure")
+              color: lock.lit
             }
           }
         }

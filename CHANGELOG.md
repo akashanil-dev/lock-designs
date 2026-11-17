@@ -1,3 +1,9 @@
+# 2.1.4 — Visible scan and result feedback
+
+- Restore the original single whole-screen scan flash using the theme accent, separate from error feedback.
+- Draw green/red result LEDs immediately, without blending through the normal clock colour animation.
+- Hold a successful Dot Matrix result for 300 ms before unlock, with existing cancellation safeguards.
+
 # 2.1.3 — Restore original Dot Matrix motion
 
 - Remove scan pulsing and yellow; scanning keeps the theme accent.
